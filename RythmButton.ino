@@ -24,9 +24,8 @@
 
 // constants won't change. They're used here to set pin numbers:
 const int buttonPin = 2;     // the number of the pushbutton pin
-const int blueRythmLedPin =  10;      // the number of the blue LED Pin which pulses at a set rythmn
-const int greenLedPin =  11;      // the number of the green LED Pin which outputs a success
-const int yellowLedPin =  12;      // the number of the green LED Pin which outputs a slight miss
+const int blueRythmLedPin = 10;      // the number of the blue LED Pin which pulses at a set rythmn
+const int greenLedPin = 11;      // the number of the green LED Pin which outputs a success
 const int redLedPin =  13;      // the number of the green LED Pin which outputs a miss
 
 // variables will change:
@@ -41,6 +40,9 @@ int blueLedPeriod = 5000;
 // blue button pulse duration
 int blueLedPulseDuration = 1000;
 
+// button press time
+int buttonPressTime = 0;
+
 //
 
 // time of loop
@@ -51,8 +53,6 @@ void setup() {
   pinMode(blueRythmLedPin, OUTPUT);
   // initialize the LED pin as an output:
   pinMode(greenLedPin, OUTPUT);
-  // initialize the LED pin as an output:
-  pinMode(yellowLedPin, OUTPUT);
   // initialize the LED pin as an output:
   pinMode(redLedPin, OUTPUT);
   // initialize the pushbutton pin as an input:
@@ -67,28 +67,36 @@ void loop() {
   // Save time of loop
   timeNow = millis();
 
+  // register initial press
+  if (buttonState == HIGH && buttonPressTime == 0) {
+    buttonPressTime = timeNow;
+  }
+
+  // put red light if button pressed before pulse
+  if (buttonPressTime !=0 && (buttonPressTime - blueLedStartTime) < (blueLedPeriod - blueLedPulseDuration)) {
+    digitalWrite(redLedPin, HIGH);
+    digitalWrite(greenLedPin, LOW);
+  }
+  
+  // put green light on if in duration
+   if (buttonPressTime !=0 && ((buttonPressTime - blueLedStartTime) >= (blueLedPeriod - blueLedPulseDuration)) && (buttonPressTime - blueLedStartTime < blueLedPeriod)) {
+     digitalWrite(redLedPin, LOW);
+     digitalWrite(greenLedPin, HIGH);
+  }
+
+  // put red button on if missed
+  if (buttonPressTime == 0 && (blueLedPeriod <= (timeNow - blueLedStartTime))) {
+    digitalWrite(redLedPin, HIGH);
+    digitalWrite(greenLedPin, LOW);
+  }
+
   // if time since start reaches period the start time is reset and the button is turned off
   if(blueLedPeriod <= (timeNow - blueLedStartTime)) {
     blueLedStartTime = timeNow;
     digitalWrite(blueRythmLedPin, LOW);
+    buttonPressTime = 0;
     // if time since start reaches period blueLedPulseDuration before start time button is turned on
   } else if ((blueLedPeriod - blueLedPulseDuration) <= (timeNow - blueLedStartTime)) {
     digitalWrite(blueRythmLedPin, HIGH);
-  }
-  
-
-  // check if the pushbutton is pressed. If it is, the buttonState is HIGH:
-  if (buttonState == HIGH) {
-    // turn all LED on:
-    digitalWrite(blueRythmLedPin, HIGH);
-    digitalWrite(greenLedPin, HIGH);
-    digitalWrite(yellowLedPin, HIGH);
-    digitalWrite(redLedPin, HIGH);
-  } else {
-    // turn all LED off:
-    digitalWrite(blueRythmLedPin, LOW);
-    digitalWrite(greenLedPin, LOW);
-    digitalWrite(yellowLedPin, LOW);
-    digitalWrite(redLedPin, LOW);
   }
 }
