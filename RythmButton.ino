@@ -99,7 +99,7 @@ void loop() {
      digitalWrite(greenLedPin, HIGH);
   }
 
-  // put red button on and green lkight off if pulse missed
+  // put red button on and green light off if pulse missed
   if (buttonPressTime == 0 && (blueLedPeriod <= (timeNow - blueLedStartTime))) {
     digitalWrite(redLedPin, HIGH);
     digitalWrite(greenLedPin, LOW);
@@ -110,11 +110,11 @@ void loop() {
     blueLedStartTime = timeNow;
     digitalWrite(blueRythmLedPin, LOW);
     buttonPressTime = 0;
-    // if in randomness mode time blue LED period and duration is randomly set every cycle\
+    // if in randomness mode time blue LED period and duration is randomly set every cycle
     blueLedPeriod = rand() % 5000 + 1000;
     blueLedPulseDuration = rand() % 1000 + 200;
   
-    // if time since start reaches period blueLedPulseDuration before start time button is turned on
+    // if the time for the pulse occurs the blue light is switched on. The pulse occurs the duration of the pulse before the period is complete.
   } else if ((blueLedPeriod - blueLedPulseDuration) <= (timeNow - blueLedStartTime)) {
     digitalWrite(blueRythmLedPin, HIGH);
   }
