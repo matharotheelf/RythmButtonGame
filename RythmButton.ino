@@ -81,7 +81,7 @@ void loop() {
     digitalWrite(greenLedPin, LOW);
   }
 
-  // if time since start reaches period the start time is reset and the button is turned off and button press time is reset
+  // if time since start reaches period the start time is reset and the blue light is turned off and button press time is reset
   if(blueLedPeriod <= (timeNow - blueLedStartTime)) {
     blueLedStartTime = timeNow;
     digitalWrite(blueRythmLedPin, LOW);
