@@ -48,7 +48,7 @@ int timeNow;
 
 // records preset game mode
 enum GameMode { fast, slow, randomness };
-GameMode gameMode = randomness;
+GameMode gameMode = slow;
 
 void setup() {
   // initialize the LED pin as an output:
@@ -111,9 +111,10 @@ void loop() {
     digitalWrite(blueRythmLedPin, LOW);
     buttonPressTime = 0;
     // if in randomness mode time blue LED period and duration is randomly set every cycle
-    blueLedPeriod = rand() % 5000 + 1000;
-    blueLedPulseDuration = rand() % 1000 + 200;
-  
+    if(gameMode == randomness) {
+      blueLedPeriod = rand() % 5000 + 1000;
+      blueLedPulseDuration = rand() % 1000 + 200;
+    }
     // if the time for the pulse occurs the blue light is switched on. The pulse occurs the duration of the pulse before the period is complete.
   } else if ((blueLedPeriod - blueLedPulseDuration) <= (timeNow - blueLedStartTime)) {
     digitalWrite(blueRythmLedPin, HIGH);
