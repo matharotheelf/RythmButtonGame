@@ -35,18 +35,20 @@ int buttonState = 0;         // variable for reading the pushbutton status
 int blueLedStartTime;
 
 // blue LED period
-int blueLedPeriod = 5000;
+int blueLedPeriod;
 
 // blue button pulse duration
-int blueLedPulseDuration = 1000;
+int blueLedPulseDuration;
 
 // button press time
 int buttonPressTime = 0;
 
-//
-
 // time of loop
 int timeNow;
+
+// records preset game mode
+enum GameMode { fast, slow, randomness };
+GameMode gameMode = randomness;
 
 void setup() {
   // initialize the LED pin as an output:
@@ -58,7 +60,20 @@ void setup() {
   // initialize the pushbutton pin as an input:
   pinMode(buttonPin, INPUT);
 
+  // set initial start time for counter
   int blueLedStartTime = millis();
+
+  // blue LED period and pulse duration is set by game mode, randomness game mode sets randomn duration
+  if(gameMode == slow) {
+    blueLedPeriod = 5000;
+    blueLedPulseDuration = 1000;
+  } else if(gameMode == fast) {
+    blueLedPeriod = 2000;
+    blueLedPulseDuration = 400;
+  } else if(gameMode == randomness) {
+    blueLedPeriod = rand() % 5000 + 500;
+    blueLedPulseDuration = rand() % 1000 + 100;
+  }
 }
 
 void loop() {
@@ -72,29 +87,33 @@ void loop() {
     buttonPressTime = timeNow;
   }
 
-  // put red light if button pressed before pulse
+  // put red light on and green light off if button pressed before pulse
   if (buttonPressTime !=0 && (buttonPressTime - blueLedStartTime) < (blueLedPeriod - blueLedPulseDuration)) {
     digitalWrite(redLedPin, HIGH);
     digitalWrite(greenLedPin, LOW);
   }
   
-  // put green light on if in duration
+  // put green light on and red light off if in pulse duration
    if (buttonPressTime !=0 && ((buttonPressTime - blueLedStartTime) >= (blueLedPeriod - blueLedPulseDuration)) && (buttonPressTime - blueLedStartTime < blueLedPeriod)) {
      digitalWrite(redLedPin, LOW);
      digitalWrite(greenLedPin, HIGH);
   }
 
-  // put red button on if missed
+  // put red button on and green lkight off if pulse missed
   if (buttonPressTime == 0 && (blueLedPeriod <= (timeNow - blueLedStartTime))) {
     digitalWrite(redLedPin, HIGH);
     digitalWrite(greenLedPin, LOW);
   }
 
-  // if time since start reaches period the start time is reset and the button is turned off
+  // if time since start reaches period the start time is reset and the button is turned off and button press time is reset
   if(blueLedPeriod <= (timeNow - blueLedStartTime)) {
     blueLedStartTime = timeNow;
     digitalWrite(blueRythmLedPin, LOW);
     buttonPressTime = 0;
+    // if in randomness mode time blue LED period and duration is randomly set every cycle\
+    blueLedPeriod = rand() % 5000 + 1000;
+    blueLedPulseDuration = rand() % 1000 + 200;
+  
     // if time since start reaches period blueLedPulseDuration before start time button is turned on
   } else if ((blueLedPeriod - blueLedPulseDuration) <= (timeNow - blueLedStartTime)) {
     digitalWrite(blueRythmLedPin, HIGH);
